@@ -5,7 +5,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.example.repository.AccountRepository;
 import com.example.entity.Account;
-import com.example.exception.UsernameExists;
+
+import com.example.exception.UsernameExistsException;
+import com.example.exception.UsernameAndPasswordMismatchException;;
 
 @Service
 public class AccountService {
@@ -35,11 +37,17 @@ public class AccountService {
         }
 
         if (existsByUsername(account.getUsername())){
-            throw new UsernameExists("User " + account.getUsername() + " already exists");
+            throw new UsernameExistsException("User " + account.getUsername() + " already exists");
         }
 
         return accountRepository.save(account);
     }
+
+    public Account processUserLogin(Account account){    
+        return accountRepository.findByUsernameAndPassword(account.getUsername(), account.getPassword()).orElseThrow(() -> new UsernameAndPasswordMismatchException("Username or Password Invalid"));
+    }
+
+    
 
 
 }
