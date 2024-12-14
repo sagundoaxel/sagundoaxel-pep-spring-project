@@ -2,7 +2,6 @@ package com.example.service;
 
 import org.springframework.stereotype.Service;
 
-import java.lang.StackWalker.Option;
 import java.util.List;
 import java.util.Optional;
 
@@ -13,6 +12,7 @@ import com.example.repository.MessageRepository;
 // import com.example.service.AccountService;
 
 import com.example.exception.MessageNotCreatedException;
+import com.example.exception.MessageUpdateFailedException;
 
 
 @Service
@@ -58,7 +58,28 @@ public class MessageService {
     public int deleteMessageById(Integer id){
         return messageRepository.deleteMessageById(id);
     }
+
+    public int updateMessageById(Integer id, String newMessage){
+
+        if(newMessage == null || newMessage.isBlank() || newMessage == ""){
+            throw new MessageUpdateFailedException("Message is blank");
+        }
+
+        if(newMessage.length() > 255){
+            throw new MessageUpdateFailedException("Message is too long");
+        }
+
+        if (!(messageRepository.existsById(id))){
+            throw new MessageUpdateFailedException("Message id not found");
+        }
+
+        return messageRepository.updateMessageTextById(id, newMessage);
         
+    }
+
+    public List<Message> getMessagesByAccountId(Integer accountId) {
+        return messageRepository.findByPostedBy(accountId);
+    }
 
 
 }
